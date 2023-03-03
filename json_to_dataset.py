@@ -19,12 +19,18 @@ from labelme import utils
 if __name__ == '__main__':
     jpgs_path   = "datasets/JPEGImages"
     pngs_path   = "datasets/SegmentationClass"
-    classes     = ["_background_","aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
+    # classes     = ["_background_","aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
     # classes     = ["_background_","cat","dog"]
-    
-    count = os.listdir("./datasets/before/") 
-    for i in range(0, len(count)):
-        path = os.path.join("./datasets/before", count[i])
+    classes = ["_background_", "person"]
+
+
+    json_dir = "../data/persons"
+    json_lists = os.listdir(json_dir)
+
+    #for i in range(0, len(count)):
+    for json_list in json_lists:
+        # path = os.path.join("./datasets/before", count[i])
+        path = os.path.join(json_dir, json_list)
 
         if os.path.isfile(path) and path.endswith('json'):
             data = json.load(open(path))
@@ -57,7 +63,7 @@ if __name__ == '__main__':
             lbl = utils.shapes_to_label(img.shape, data['shapes'], label_name_to_value)
             
                 
-            PIL.Image.fromarray(img).save(osp.join(jpgs_path, count[i].split(".")[0]+'.jpg'))
+            PIL.Image.fromarray(img).save(osp.join(jpgs_path, json_list.split(".")[0]+'.jpg'))
 
             new = np.zeros([np.shape(img)[0],np.shape(img)[1]])
             for name in label_names:
@@ -65,5 +71,12 @@ if __name__ == '__main__':
                 index_all = classes.index(name)
                 new = new + index_all*(np.array(lbl) == index_json)
 
-            utils.lblsave(osp.join(pngs_path, count[i].split(".")[0]+'.png'), new)
-            print('Saved ' + count[i].split(".")[0] + '.jpg and ' + count[i].split(".")[0] + '.png')
+            # utils.lblsave(osp.join(pngs_path, count[i].split(".")[0]+'.png'), new)
+            utils.lblsave(osp.join(pngs_path, json_list.split(".")[0] + '.png'), new)
+            # print('Saved ' + count[i].split(".")[0] + '.jpg and ' + count[i].split(".")[0] + '.png')
+
+            redImg = PIL.Image.open(osp.join(pngs_path, json_list.split(".")[0] + '.png'))
+            whiteImg = np.array(redImg) * 255
+            whiteImg = whiteImg.astype(np.uint8)
+            whiteImg = PIL.Image.fromarray(whiteImg)
+            whiteImg.save(osp.join(pngs_path, json_list.split(".")[0] + '.png'))
